@@ -1,0 +1,131 @@
+import java.util.*;
+
+// Graph class using adjacency list
+class Graph {
+    private int V;
+    private List<List<Integer>> adj;
+    private int[] indegree;
+
+    // Constructor
+    public Graph(int V) {
+        this.V = V;
+        adj = new ArrayList<>();
+        indegree = new int[V];
+
+        for (int i = 0; i < V; i++) {
+            adj.add(new ArrayList<>());
+        }
+    }
+
+    // Add edge u → v
+    public void addEdge(int u, int v) {
+        adj.get(u).add(v);
+        indegree[v]++;
+    }
+
+    public int V() {
+        return V;
+    }
+
+    public int indegree(int v) {
+        return indegree[v];
+    }
+
+    public Iterable<Integer> adjList(int v) {
+        return adj.get(v);
+    }
+
+    // Print graph
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < V; i++) {
+            sb.append(i).append(" -> ").append(adj.get(i)).append("\n");
+        }
+        return sb.toString();
+    }
+}
+
+
+// Topological Sort class
+class TopologicalSort {
+    private Queue<Integer> order;
+    private int[] ranks;
+
+    public TopologicalSort(Graph G) {
+        int[] indegree = new int[G.V()];
+
+        // Copy indegree
+        for (int v = 0; v < G.V(); v++) {
+            indegree[v] = G.indegree(v);
+        }
+
+        ranks = new int[G.V()];
+        order = new LinkedList<>();
+
+        Queue<Integer> queue = new LinkedList<>();
+
+        // Add vertices with indegree 0
+        for (int v = 0; v < G.V(); v++) {
+            if (indegree[v] == 0)
+                queue.add(v);
+        }
+
+        int count = 0;
+
+        while (!queue.isEmpty()) {
+            int v = queue.poll();
+            order.add(v);
+            ranks[v] = count++;
+
+            for (int w : G.adjList(v)) {
+                indegree[w]--;
+                if (indegree[w] == 0)
+                    queue.add(w);
+            }
+        }
+
+        // If cycle exists
+        if (count != G.V()) {
+            order = null;
+        }
+    }
+
+    public Iterable<Integer> order() {
+        return order;
+    }
+
+    public boolean hasOrder() {
+        return order != null;
+    }
+}
+
+
+// Main class
+public class Main {
+    public static void main(String[] args) {
+
+        Graph G = new Graph(6);
+
+        // Creating a DAG
+        G.addEdge(5, 2);
+        G.addEdge(5, 0);
+        G.addEdge(4, 0);
+        G.addEdge(4, 1);
+        G.addEdge(2, 3);
+        G.addEdge(3, 1);
+
+        System.out.println("Graph:");
+        System.out.println(G);
+
+        TopologicalSort topo = new TopologicalSort(G);
+
+        if (!topo.hasOrder()) {
+            System.out.println("Not a DAG (Cycle exists)");
+        } else {
+            System.out.print("Topological Order: ");
+            for (int v : topo.order()) {
+                System.out.print(v + " ");
+            }
+        }
+    }
+}
