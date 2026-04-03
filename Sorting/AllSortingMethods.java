@@ -106,7 +106,7 @@ public class AllSortingMethods {
             temp[k++] = A[j++];
         }
 
-        // Copy back to original array
+    
         for (i = left; i <= right; i++) {
             A[i] = temp[i];
         }
